@@ -2,27 +2,24 @@
 
 $Name = Get-Item $MyInvocation.MyCommand.Path | Select-Object -ExpandProperty BaseName 
  
+$BlockMasters_Request = [PSCustomObject]@{} 
  
- $BlockMasters_Request = [PSCustomObject]@{} 
- 
- 
- try { 
+try { 
      $BlockMasters_Request = Invoke-RestMethod "http://blockmasters.co/api/status" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop 
      #$BlockMastersCoins_Request = Invoke-RestMethod "http://blockmasters.co/api/status" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop 
- } 
- catch { 
+} 
+catch { 
      Write-Warning "Sniffdog howled at ($Name) for a failed API check. " 
      return 
- }
+}
  
- if (($BlockMasters_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Measure-Object Name).Count -le 1) { 
+if (($BlockMasters_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Measure-Object Name).Count -le 1) { 
      Write-Warning "SniffDog sniffed near ($Name) but ($Name) Pool API had no scent. " 
      return 
- } 
+} 
   
 $Location = 'US'
 $BlockMasters_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Select -ExpandProperty Name | foreach {
-#$BlockMasters_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Select-Object -ExpandProperty Name | Where-Object {$BlockMasters_Request.$_.hashrate -gt 0} | foreach {
     $BlockMasters_Host = "$_.blockmasters.co"
     $BlockMasters_Port = $BlockMasters_Request.$_.port
     $BlockMasters_Algorithm = Get-Algorithm $BlockMasters_Request.$_.name
@@ -47,7 +44,7 @@ $BlockMasters_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore 
 	"scrypt"{$Divisor *= 1000}
 	"qubit"{$Divisor *= 1000}
 	"yescrypt"{$Divisor /= 1000}
-    "yescryptr16"{$Divisor /= 1000}
+    	"yescryptr16"{$Divisor /= 1000}
     }
 
 			
